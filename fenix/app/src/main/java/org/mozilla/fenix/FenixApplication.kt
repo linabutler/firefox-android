@@ -86,6 +86,7 @@ import org.mozilla.fenix.components.Core
 import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.metrics.MetricServiceType
 import org.mozilla.fenix.components.metrics.MozillaProductDetector
+import org.mozilla.fenix.components.search.GlobalSuggestDependencyProvider
 import org.mozilla.fenix.experiments.maybeFetchExperiments
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.containsQueryParameters
@@ -109,6 +110,7 @@ import org.mozilla.fenix.session.VisibilityLifecycleCallback
 import org.mozilla.fenix.utils.Settings
 import org.mozilla.fenix.utils.Settings.Companion.TOP_SITES_PROVIDER_MAX_THRESHOLD
 import org.mozilla.fenix.wallpapers.Wallpaper
+import java.io.File
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -304,6 +306,16 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
         components.analytics.metricsStorage.tryRegisterAsUsageRecorder(this)
 
         downloadWallpapers()
+
+        val suggestDatabasePath = components.strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
+            File(
+                this.filesDir,
+                GlobalSuggestDependencyProvider.DEFAULT_SUGGESTION_PROVIDER_DATABASE_NAME
+            ).canonicalPath
+        }
+        // The ingestion scheduler and awesomebar require the Firefox Suggest suggestion provider
+        // to be initialized, but the initialization doesn't do any I/O, so it's safe to run here.
+        GlobalSuggestDependencyProvider.initializeSuggestionProvider(suggestDatabasePath)
     }
 
     @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage

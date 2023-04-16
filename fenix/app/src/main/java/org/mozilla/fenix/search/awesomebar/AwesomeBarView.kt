@@ -37,6 +37,7 @@ import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.Components
 import org.mozilla.fenix.components.Core.Companion.METADATA_HISTORY_SUGGESTION_LIMIT
 import org.mozilla.fenix.components.Core.Companion.METADATA_SHORTCUT_SUGGESTION_LIMIT
+import org.mozilla.fenix.components.search.SuggestSuggestionProvider
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.search.SearchEngineSource
@@ -56,6 +57,7 @@ class AwesomeBarView(
     private val engineForSpeculativeConnects: Engine?
     private val defaultHistoryStorageProvider: HistoryStorageSuggestionProvider
     private val defaultCombinedHistoryProvider: CombinedHistorySuggestionProvider
+    private val suggestProvider: SuggestSuggestionProvider
     private val shortcutsEnginePickerProvider: ShortcutsSuggestionProvider
     private val defaultSearchSuggestionProvider: SearchSuggestionProvider
     private val defaultSearchActionProvider: SearchActionProvider
@@ -137,6 +139,12 @@ class AwesomeBarView(
                 showEditSuggestion = false,
                 suggestionsHeader = activity.getString(R.string.firefox_suggest_header),
             )
+
+        suggestProvider = SuggestSuggestionProvider(
+            context = activity,
+            loadUrlUseCase = loadUrlUseCase,
+            suggestionsHeader = activity.getString(R.string.firefox_suggest_header),
+        )
 
         val searchBitmap = getDrawable(activity, R.drawable.ic_search)!!.apply {
             colorFilter = createBlendModeColorFilterCompat(primaryTextColor, SRC_IN)
@@ -321,6 +329,8 @@ class AwesomeBarView(
         if (!activity.settings().showUnifiedSearchFeature) {
             providersToAdd.add(searchEngineSuggestionProvider)
         }
+
+        providersToAdd.add(suggestProvider)
 
         return providersToAdd
     }

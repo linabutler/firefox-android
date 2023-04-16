@@ -626,6 +626,8 @@ dependencies {
 
     implementation FenixDependencies.androidx_profileinstaller
 
+    implementation FenixDependencies.mozilla_suggest
+
     androidTestImplementation ComponentsDependencies.androidx_test_uiautomator
     androidTestImplementation FenixDependencies.fastlane
     // This Falcon version is added to maven central now required for Screengrab

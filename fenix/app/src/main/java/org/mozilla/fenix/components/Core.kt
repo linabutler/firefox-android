@@ -88,6 +88,7 @@ import org.mozilla.fenix.Config
 import org.mozilla.fenix.IntentReceiverActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.search.SearchMigration
+import org.mozilla.fenix.components.search.SuggestIngestionScheduler
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
@@ -581,6 +582,13 @@ class Core(
             inDark -> PreferredColorScheme.Dark
             else -> PreferredColorScheme.Light
         }
+    }
+
+    val suggestIngestionScheduler by lazyMonitored {
+        SuggestIngestionScheduler(
+            context = context,
+            frequency = Frequency(1, TimeUnit.DAYS),
+        )
     }
 
     companion object {
