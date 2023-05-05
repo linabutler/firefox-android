@@ -5,6 +5,7 @@
 package org.mozilla.fenix.components.search
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import java.util.UUID
 import mozilla.appservices.suggest.Suggestion
 import mozilla.components.concept.awesomebar.AwesomeBar
@@ -38,7 +39,10 @@ class SuggestSuggestionProvider(
         return this.map { result ->
             AwesomeBar.Suggestion(
                 provider = this@SuggestSuggestionProvider,
-                icon = null,
+                icon = result.icon?.let {
+                    val byteArray = it.toUByteArray().asByteArray()
+                    BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+                },
                 title = "${result.fullKeyword} — ${result.title}",
                 description = null,
                 onSuggestionClicked = {
