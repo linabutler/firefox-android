@@ -62,5 +62,13 @@
             android:layout="@layout/checkbox_left_sub_preference"
             android:title="@string/preferences_show_search_suggestions_in_private"
             app:iconSpaceReserved="false" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_show_nonsponsored_suggestions"
+            android:title="@string/preferences_show_nonsponsored_suggestions" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_show_sponsored_suggestions"
+            android:title="@string/preferences_show_sponsored_suggestions" />
     </PreferenceCategory>
 </PreferenceScreen>

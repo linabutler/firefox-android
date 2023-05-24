@@ -1822,4 +1822,14 @@ class Settings(private val appContext: Context) : PreferencesHolder {
      * Indicates if the new Search settings UI is enabled.
      */
     var enableUnifiedSearchSettingsUI: Boolean = showUnifiedSearchFeature && FeatureFlags.unifiedSearchSettings
+
+    var shouldShowSponsoredSuggestions by booleanPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_show_sponsored_suggestions),
+        default = false,
+    )
+
+    var shouldShowNonSponsoredSuggestions by booleanPreference(
+        key = appContext.getPreferenceKey(R.string.pref_key_show_nonsponsored_suggestions),
+        default = false,
+    )
 }

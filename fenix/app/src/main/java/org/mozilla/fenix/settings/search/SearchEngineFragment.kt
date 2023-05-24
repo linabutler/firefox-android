@@ -98,6 +98,16 @@ class SearchEngineFragment : PreferenceFragmentCompat() {
                 isChecked = context.settings().shouldShowVoiceSearch
             }
 
+        val showSponsoredSuggestionsPreference =
+            requirePreference<SwitchPreference>(R.string.pref_key_show_sponsored_suggestions).apply {
+                isChecked = context.settings().shouldShowSponsoredSuggestions
+            }
+
+        val showNonSponsoredSuggestionsPreference =
+            requirePreference<SwitchPreference>(R.string.pref_key_show_nonsponsored_suggestions).apply {
+                isChecked = context.settings().shouldShowNonSponsoredSuggestions
+            }
+
         searchSuggestionsPreference.onPreferenceChangeListener = SharedPreferenceUpdater()
         showSearchShortcuts.onPreferenceChangeListener = SharedPreferenceUpdater()
         showHistorySuggestions.onPreferenceChangeListener = SharedPreferenceUpdater()
@@ -124,6 +134,9 @@ class SearchEngineFragment : PreferenceFragmentCompat() {
             }
             true
         }
+
+        showSponsoredSuggestionsPreference.onPreferenceChangeListener = SharedPreferenceUpdater()
+        showNonSponsoredSuggestionsPreference.onPreferenceChangeListener = SharedPreferenceUpdater()
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {

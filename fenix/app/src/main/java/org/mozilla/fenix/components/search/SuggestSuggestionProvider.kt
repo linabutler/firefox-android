@@ -10,6 +10,8 @@ import java.util.UUID
 import mozilla.appservices.suggest.Suggestion
 import mozilla.components.concept.awesomebar.AwesomeBar
 import mozilla.components.feature.session.SessionUseCases
+import org.mozilla.fenix.R
+import org.mozilla.fenix.ext.settings
 
 class SuggestSuggestionProvider(
     private val context: Context,
@@ -36,19 +38,24 @@ class SuggestSuggestionProvider(
     }
 
     private suspend fun List<Suggestion>.into(): List<AwesomeBar.Suggestion> {
-        return this.map { result ->
-            AwesomeBar.Suggestion(
-                provider = this@SuggestSuggestionProvider,
-                icon = result.icon?.let {
-                    val byteArray = it.toUByteArray().asByteArray()
-                    BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-                },
-                title = "${result.fullKeyword} — ${result.title}",
-                description = null,
-                onSuggestionClicked = {
-                    loadUrlUseCase.invoke(result.url)
-                },
-            )
+        return this.mapNotNull { result ->
+            if ((result.isSponsored && !context.settings().shouldShowSponsoredSuggestions) ||
+                    (!result.isSponsored && !context.settings().shouldShowNonSponsoredSuggestions)) {
+                null
+            } else {
+                AwesomeBar.Suggestion(
+                    provider = this@SuggestSuggestionProvider,
+                    icon = result.icon?.let {
+                        val byteArray = it.toUByteArray().asByteArray()
+                        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+                    },
+                    title = "${result.fullKeyword} — ${result.title}",
+                    description = if (result.isSponsored) context.getString(R.string.sponsored_suggestion_description) else null,
+                    onSuggestionClicked = {
+                        loadUrlUseCase.invoke(result.url)
+                    }
+                )
+            }
         }
     }
 }
