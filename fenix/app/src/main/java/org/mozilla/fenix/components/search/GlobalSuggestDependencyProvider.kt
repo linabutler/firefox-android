@@ -4,20 +4,20 @@
 
 package org.mozilla.fenix.components.search
 
-import mozilla.appservices.suggest.SuggestionProvider
+import mozilla.appservices.suggest.SuggestStore
 
 object GlobalSuggestDependencyProvider {
-    const val DEFAULT_SUGGESTION_PROVIDER_DATABASE_NAME = "suggest.sqlite"
+    const val DEFAULT_SUGGEST_DATABASE_NAME = "suggest.sqlite"
 
-    internal var suggestionProvider: SuggestionProvider? = null
+    internal var suggestStore: SuggestStore? = null
 
-    fun initializeSuggestionProvider(databasePath: String) {
-        this.suggestionProvider = SuggestionProvider(databasePath)
+    fun initializeSuggestStore(databasePath: String) {
+        this.suggestStore = SuggestStore(databasePath)
     }
 
-    fun requireSuggestionProvider(): SuggestionProvider {
-        return requireNotNull(suggestionProvider) {
-            "`GlobalSuggestDependencyProvider.initialize` must be called before accessing `suggestionProvider`"
+    fun requireSuggestStore(): SuggestStore {
+        return requireNotNull(suggestStore) {
+            "`GlobalSuggestDependencyProvider.initializeSuggestStore` must be called before accessing `suggestStore`"
         }
     }
 }

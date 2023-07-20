@@ -76,7 +76,7 @@ object FenixDependencies {
     const val falcon = "com.jraska:falcon:${FenixVersions.falcon}"
     const val fastlane = "tools.fastlane:screengrab:${FenixVersions.fastlane}"
 
-    const val mozilla_suggest = "org.mozilla.appservices:suggest:117.20230720050311"
+    const val mozilla_suggest = "org.mozilla.appservices:suggest:118.20230811050249"
 
     // --- START AndroidX test dependencies --- //
     // N.B.: the versions of these dependencies appear to be pinned together. To avoid bugs, they

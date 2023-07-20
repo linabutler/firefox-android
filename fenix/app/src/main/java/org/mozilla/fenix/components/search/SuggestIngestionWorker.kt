@@ -9,7 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mozilla.appservices.suggest.IngestLimits
+import mozilla.appservices.suggest.SuggestIngestionConstraints
 import mozilla.appservices.suggest.SuggestApiException
 import mozilla.components.support.base.log.logger.Logger
 
@@ -21,10 +21,10 @@ internal class SuggestIngestionWorker(
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            val provider = GlobalSuggestDependencyProvider.requireSuggestionProvider()
+            val store = GlobalSuggestDependencyProvider.requireSuggestStore()
             try {
                 logger.info("Ingesting new Firefox Suggest suggestions")
-                provider.ingest(IngestLimits(records = null))
+                store.ingest(SuggestIngestionConstraints())
                 Result.success()
             } catch (suggestError: SuggestApiException) {
                 logger.error("Failed to ingest new Firefox Suggest suggestions", suggestError)

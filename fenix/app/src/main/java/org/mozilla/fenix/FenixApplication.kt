@@ -308,14 +308,11 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
         downloadWallpapers()
 
         val suggestDatabasePath = components.strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
-            File(
-                this.filesDir,
-                GlobalSuggestDependencyProvider.DEFAULT_SUGGESTION_PROVIDER_DATABASE_NAME
-            ).canonicalPath
+            getDatabasePath(GlobalSuggestDependencyProvider.DEFAULT_SUGGEST_DATABASE_NAME).absolutePath
         }
-        // The ingestion scheduler and awesomebar require the Firefox Suggest suggestion provider
-        // to be initialized, but the initialization doesn't do any I/O, so it's safe to run here.
-        GlobalSuggestDependencyProvider.initializeSuggestionProvider(suggestDatabasePath)
+        // The ingestion scheduler and awesomebar require the Firefox Suggest store to be
+        // initialized, but the initialization doesn't do any I/O, so it's safe to run here.
+        GlobalSuggestDependencyProvider.initializeSuggestStore(suggestDatabasePath)
     }
 
     @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage
