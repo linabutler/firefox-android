@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.fenix.components.search
+package mozilla.components.feature.fxsuggest
 
 import android.content.Context
 import androidx.work.Constraints
@@ -15,34 +15,51 @@ import mozilla.components.support.base.log.logger.Logger
 import mozilla.components.support.base.worker.Frequency
 import java.util.concurrent.TimeUnit
 
-class SuggestIngestionScheduler(
+/**
+ * Schedules a periodic background task to incrementally download and persist new Firefox Suggest
+ * search suggestions.
+ *
+ * @property context The Android application context.
+ * @property frequency The ingestion frequency.
+ */
+class FxSuggestIngestionScheduler(
     private val context: Context,
     private val frequency: Frequency = Frequency(repeatInterval = 1, repeatIntervalTimeUnit = TimeUnit.DAYS)
 ) {
-    private val logger = Logger("SuggestIngestionScheduler")
+    private val logger = Logger("FxSuggestIngestionScheduler")
 
-    fun schedulePeriodicIngestion() {
+    /**
+     * Schedules a periodic background task to ingest new suggestions. Does nothing if the task is
+     * already scheduled.
+     *
+     * Your main activity's [onCreate][android.app.Activity.onCreate] method should call this
+     * method.
+     */
+    fun startPeriodicIngestion() {
         logger.info("Scheduling periodic ingestion for new Firefox Suggest suggestions")
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            SuggestIngestionWorker.WORK_TAG,
+            FxSuggestIngestionWorker.WORK_TAG,
             ExistingPeriodicWorkPolicy.KEEP,
             createPeriodicIngestionWorkerRequest()
         )
     }
 
+    /**
+     * Cancels a scheduled background task to ingest new suggestions.
+     */
     fun stopPeriodicIngestion() {
         logger.info("Canceling periodic ingestion for new Firefox Suggest suggestions")
-        WorkManager.getInstance(context).cancelAllWorkByTag(SuggestIngestionWorker.WORK_TAG)
+        WorkManager.getInstance(context).cancelAllWorkByTag(FxSuggestIngestionWorker.WORK_TAG)
     }
 
     internal fun createPeriodicIngestionWorkerRequest(): PeriodicWorkRequest {
         val constraints = getWorkerConstrains()
-        return PeriodicWorkRequestBuilder<SuggestIngestionWorker>(
+        return PeriodicWorkRequestBuilder<FxSuggestIngestionWorker>(
             this.frequency.repeatInterval,
             this.frequency.repeatIntervalTimeUnit,
         ).apply {
             setConstraints(constraints)
-            addTag(SuggestIngestionWorker.WORK_TAG)
+            addTag(FxSuggestIngestionWorker.WORK_TAG)
         }.build()
     }
 

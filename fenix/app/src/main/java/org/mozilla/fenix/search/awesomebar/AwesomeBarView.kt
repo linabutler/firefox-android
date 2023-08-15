@@ -25,6 +25,7 @@ import mozilla.components.feature.awesomebar.provider.SearchEngineSuggestionProv
 import mozilla.components.feature.awesomebar.provider.SearchSuggestionProvider
 import mozilla.components.feature.awesomebar.provider.SearchTermSuggestionsProvider
 import mozilla.components.feature.awesomebar.provider.SessionSuggestionProvider
+import mozilla.components.feature.fxsuggest.FxSuggestSuggestionProvider
 import mozilla.components.feature.search.SearchUseCases
 import mozilla.components.feature.session.SessionUseCases
 import mozilla.components.feature.syncedtabs.DeviceIndicators
@@ -37,7 +38,6 @@ import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.Components
 import org.mozilla.fenix.components.Core.Companion.METADATA_HISTORY_SUGGESTION_LIMIT
 import org.mozilla.fenix.components.Core.Companion.METADATA_SHORTCUT_SUGGESTION_LIMIT
-import org.mozilla.fenix.components.search.SuggestSuggestionProvider
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.search.SearchEngineSource
@@ -57,7 +57,7 @@ class AwesomeBarView(
     private val engineForSpeculativeConnects: Engine?
     private val defaultHistoryStorageProvider: HistoryStorageSuggestionProvider
     private val defaultCombinedHistoryProvider: CombinedHistorySuggestionProvider
-    private val suggestProvider: SuggestSuggestionProvider
+    private val suggestProvider: FxSuggestSuggestionProvider
     private val shortcutsEnginePickerProvider: ShortcutsSuggestionProvider
     private val defaultSearchSuggestionProvider: SearchSuggestionProvider
     private val defaultSearchActionProvider: SearchActionProvider
@@ -140,9 +140,11 @@ class AwesomeBarView(
                 suggestionsHeader = activity.getString(R.string.firefox_suggest_header),
             )
 
-        suggestProvider = SuggestSuggestionProvider(
-            context = activity,
+        suggestProvider = FxSuggestSuggestionProvider(
+            resources = activity.resources,
             loadUrlUseCase = loadUrlUseCase,
+            includeSponsoredSuggestions = activity.settings().shouldShowSponsoredSuggestions,
+            includeNonSponsoredSuggestions = activity.settings().shouldShowNonSponsoredSuggestions,
             suggestionsHeader = activity.getString(R.string.firefox_suggest_header),
         )
 

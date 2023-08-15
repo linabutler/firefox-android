@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.fenix.components.search
+package mozilla.components.feature.fxsuggest
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -13,15 +13,21 @@ import mozilla.appservices.suggest.SuggestIngestionConstraints
 import mozilla.appservices.suggest.SuggestApiException
 import mozilla.components.support.base.log.logger.Logger
 
-internal class SuggestIngestionWorker(
+/**
+ * A [CoroutineWorker] that downloads and persists new Firefox Suggest search suggestions.
+ *
+ * @param context The Android application context.
+ * @param params Parameters for this worker's internal state.
+ */
+internal class FxSuggestIngestionWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-    private val logger = Logger("SuggestIngestionWorker")
+    private val logger = Logger("FxSuggestIngestionWorker")
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            val store = GlobalSuggestDependencyProvider.requireSuggestStore()
+            val store = GlobalFxSuggestDependencyProvider.requireSuggestStore()
             try {
                 logger.info("Ingesting new Firefox Suggest suggestions")
                 store.ingest(SuggestIngestionConstraints())
@@ -34,6 +40,6 @@ internal class SuggestIngestionWorker(
     }
 
     internal companion object {
-        const val WORK_TAG = "org.mozilla.fenix.components.search.suggest.ingest.work.tag"
+        const val WORK_TAG = "mozilla.components.feature.fxsuggest.ingest.work.tag"
     }
 }

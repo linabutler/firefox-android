@@ -42,6 +42,7 @@ import mozilla.components.concept.storage.FrecencyThresholdOption
 import mozilla.components.feature.addons.migration.DefaultSupportedAddonsChecker
 import mozilla.components.feature.addons.update.GlobalAddonDependencyProvider
 import mozilla.components.feature.autofill.AutofillUseCases
+import mozilla.components.feature.fxsuggest.GlobalFxSuggestDependencyProvider
 import mozilla.components.feature.search.ext.buildSearchUrl
 import mozilla.components.feature.search.ext.waitForSelectedOrDefaultSearchEngine
 import mozilla.components.feature.top.sites.TopSitesFrecencyConfig
@@ -86,7 +87,6 @@ import org.mozilla.fenix.components.Core
 import org.mozilla.fenix.components.appstate.AppAction
 import org.mozilla.fenix.components.metrics.MetricServiceType
 import org.mozilla.fenix.components.metrics.MozillaProductDetector
-import org.mozilla.fenix.components.search.GlobalSuggestDependencyProvider
 import org.mozilla.fenix.experiments.maybeFetchExperiments
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.containsQueryParameters
@@ -110,7 +110,6 @@ import org.mozilla.fenix.session.VisibilityLifecycleCallback
 import org.mozilla.fenix.utils.Settings
 import org.mozilla.fenix.utils.Settings.Companion.TOP_SITES_PROVIDER_MAX_THRESHOLD
 import org.mozilla.fenix.wallpapers.Wallpaper
-import java.io.File
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -308,11 +307,11 @@ open class FenixApplication : LocaleAwareApplication(), Provider {
         downloadWallpapers()
 
         val suggestDatabasePath = components.strictMode.resetAfter(StrictMode.allowThreadDiskReads()) {
-            getDatabasePath(GlobalSuggestDependencyProvider.DEFAULT_SUGGEST_DATABASE_NAME).absolutePath
+            getDatabasePath(GlobalFxSuggestDependencyProvider.DEFAULT_SUGGEST_DATABASE_NAME).absolutePath
         }
         // The ingestion scheduler and awesomebar require the Firefox Suggest store to be
         // initialized, but the initialization doesn't do any I/O, so it's safe to run here.
-        GlobalSuggestDependencyProvider.initializeSuggestStore(suggestDatabasePath)
+        GlobalFxSuggestDependencyProvider.openSuggestStore(suggestDatabasePath)
     }
 
     @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage

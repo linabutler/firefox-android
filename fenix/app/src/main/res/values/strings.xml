@@ -2018,9 +2018,6 @@
     <!-- Title for search suggestions when the default search suggestion engine is anything other than Google. The first parameter is default search engine name. -->
     <string name="other_default_search_engine_suggestion_header">%s search</string>
 
-    <!-- Description for sponsored Firefox Suggest suggestions shown in the awesomebar. -->
-    <string name="sponsored_suggestion_description">Sponsored</string>
-
     <!-- Default browser experiment -->
     <string name="default_browser_experiment_card_text">Set links from websites, emails, and messages to open automatically in Firefox.</string>
 

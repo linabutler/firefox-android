@@ -394,7 +394,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
 
         components.notificationsDelegate.bindToActivity(this)
 
-        components.core.suggestIngestionScheduler.schedulePeriodicIngestion()
+        components.core.fxSuggestIngestionScheduler.startPeriodicIngestion()
 
         StartupTimeline.onActivityCreateEndHome(this) // DO NOT MOVE ANYTHING BELOW HERE.
     }

@@ -40,6 +40,7 @@ import mozilla.components.concept.fetch.Client
 import mozilla.components.feature.awesomebar.provider.SessionAutocompleteProvider
 import mozilla.components.feature.customtabs.store.CustomTabsServiceStore
 import mozilla.components.feature.downloads.DownloadMiddleware
+import mozilla.components.feature.fxsuggest.FxSuggestIngestionScheduler
 import mozilla.components.feature.logins.exceptions.LoginExceptionStorage
 import mozilla.components.feature.media.MediaSessionFeature
 import mozilla.components.feature.media.middleware.LastMediaAccessMiddleware
@@ -88,7 +89,6 @@ import org.mozilla.fenix.Config
 import org.mozilla.fenix.IntentReceiverActivity
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.search.SearchMigration
-import org.mozilla.fenix.components.search.SuggestIngestionScheduler
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
@@ -584,8 +584,8 @@ class Core(
         }
     }
 
-    val suggestIngestionScheduler by lazyMonitored {
-        SuggestIngestionScheduler(
+    val fxSuggestIngestionScheduler by lazyMonitored {
+        FxSuggestIngestionScheduler(
             context = context,
             frequency = Frequency(1, TimeUnit.DAYS),
         )
