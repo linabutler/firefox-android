@@ -191,6 +191,9 @@ class FxaDeviceConstellation(
                         crashReporter?.submitCaughtException(error)
                     }
                 }
+                is DeviceCommandOutgoing.CloseRemoteTabs -> {
+                    account.closeRemoteTabs(targetDeviceId, outgoingCommand.urls)
+                }
                 else -> logger.debug("Skipped sending unsupported command type: $outgoingCommand")
             }
             null

@@ -220,6 +220,31 @@ class TabListActionTest {
     }
 
     @Test
+    fun `RemoveTabsByUrlAction - Removes SessionState and tabs from partition`() {
+        val tabGroup = TabGroup("test1", tabIds = listOf("a", "b", "c", "d"))
+        val tabPartition = TabPartition("testPartition", tabGroups = listOf(tabGroup))
+        val state = BrowserState(
+            tabs = listOf(
+                createTab(id = "a", url = "https://www.mozilla.org"),
+                createTab(id = "b", url = "https://www.firefox.com"),
+                createTab(id = "c", url = "https://www.getpocket.com"),
+                createTab(id = "d", url = "https://www.mozilla.org"),
+            ),
+            selectedTabId = "d",
+            tabPartitions = mapOf(tabPartition.id to tabPartition),
+        )
+        val store = BrowserStore(state)
+
+        store.dispatch(TabListAction.RemoveTabsByUrlAction("https://www.mozilla.org"))
+            .joinBlocking()
+
+        assertEquals(2, store.state.tabs.size)
+        assertEquals(listOf("b", "c"), store.state.tabs.map { it.id })
+        assertEquals("c", store.state.selectedTabId)
+        assertEquals(listOf("b", "c"), store.state.tabPartitions[tabPartition.id]?.getGroupById(tabGroup.id)?.tabIds)
+    }
+
+    @Test
     fun `RemoveTabsAction - Removes tabs from partition`() {
         val tabGroup = TabGroup("test1", tabIds = listOf("a", "b"))
         val tabPartition = TabPartition("testPartition", tabGroups = listOf(tabGroup))

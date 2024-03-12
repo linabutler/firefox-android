@@ -87,6 +87,35 @@ internal object TabListReducer {
                 state.copy(selectedTabId = action.tabId)
             }
 
+            is TabListAction.RemoveTabsByUrlAction -> {
+                val tabsToRemove = state.tabs.withIndex().filter { it.value.content.url == action.url }.associateBy { it.value.id }
+                if (tabsToRemove.isEmpty()) {
+                    state
+                } else {
+                    val updatedTabList = state.tabs.filterNot { tabsToRemove.containsKey(it.id) }.map {
+                        val parentTabToRemove = tabsToRemove[it.parentId]
+                        if (parentTabToRemove != null) it.copy(parentId = parentTabToRemove.value.parentId) else it
+                    }
+                    val updatedSelection = state.selectedTabId?.let {
+                        val tabToRemove = tabsToRemove[it]
+                        if (tabToRemove != null) {
+                            findNewSelectedTabId(
+                                updatedTabList,
+                                tabToRemove.value.content.private,
+                                tabToRemove.index
+                            )
+                        } else {
+                            it
+                        }
+                    }
+                    state.copy(
+                        tabs = updatedTabList,
+                        selectedTabId = updatedSelection,
+                        tabPartitions = state.tabPartitions.removeTabs(tabsToRemove.keys.toList()),
+                    )
+                }
+            }
+
             is TabListAction.RemoveTabAction -> {
                 val tabToRemove = state.findTab(action.tabId)
 

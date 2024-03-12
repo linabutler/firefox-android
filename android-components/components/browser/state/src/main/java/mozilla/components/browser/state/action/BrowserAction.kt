@@ -265,6 +265,9 @@ sealed class TabListAction : BrowserAction() {
      * Removes all non-private [TabSessionState]s.
      */
     object RemoveAllNormalTabsAction : TabListAction()
+
+    /** ... */
+    data class RemoveTabsByUrlAction(val url: String) : TabListAction()
 }
 
 /**

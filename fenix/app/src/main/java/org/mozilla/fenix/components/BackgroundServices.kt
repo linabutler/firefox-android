@@ -10,6 +10,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import mozilla.components.browser.state.action.TabListAction
 import mozilla.components.browser.storage.sync.PlacesBookmarksStorage
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.browser.storage.sync.RemoteTabsStorage
@@ -19,6 +20,7 @@ import mozilla.components.concept.sync.DeviceCapability
 import mozilla.components.concept.sync.DeviceConfig
 import mozilla.components.concept.sync.DeviceType
 import mozilla.components.concept.sync.OAuthAccount
+import mozilla.components.feature.accounts.push.CloseRemoteTabsFeature
 import mozilla.components.feature.accounts.push.FxaPushSupportFeature
 import mozilla.components.feature.accounts.push.SendTabFeature
 import mozilla.components.feature.syncedtabs.SyncedTabsAutocompleteProvider
@@ -84,7 +86,7 @@ class BackgroundServices(
         // NB: flipping this flag back and worth is currently not well supported and may need hand-holding.
         // Consult with the android-components peers before changing.
         // See https://github.com/mozilla/application-services/issues/1308
-        capabilities = setOf(DeviceCapability.SEND_TAB),
+        capabilities = setOf(DeviceCapability.SEND_TAB, DeviceCapability.CLOSE_REMOTE_TABS),
 
         // Enable encryption for account state on supported API levels (23+).
         // Just on Nightly and local builds for now.
@@ -192,6 +194,10 @@ class BackgroundServices(
 
         SendTabFeature(accountManager) { device, tabs ->
             notificationManager.showReceivedTabs(context, device, tabs)
+        }
+
+        CloseRemoteTabsFeature(accountManager) { _, urls ->
+            urls.forEach { context.components.core.store.dispatch(TabListAction.RemoveTabsByUrlAction(it)) }
         }
 
         SyncedTabsIntegration(context, accountManager).launch()

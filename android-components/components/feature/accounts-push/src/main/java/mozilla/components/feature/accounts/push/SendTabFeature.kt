@@ -38,7 +38,7 @@ class SendTabFeature(
     onTabsReceived: (Device?, List<TabData>) -> Unit,
 ) {
     init {
-        val observer = EventsObserver(onTabsReceived)
+        val observer = TabReceivedEventsObserver(onTabsReceived)
 
         // Observe the account for all account events, although we'll ignore
         // non send-tab command events.
@@ -46,10 +46,10 @@ class SendTabFeature(
     }
 }
 
-internal class EventsObserver(
+internal class TabReceivedEventsObserver(
     private val onTabsReceived: (Device?, List<TabData>) -> Unit,
 ) : AccountEventsObserver {
-    private val logger = Logger("EventsObserver")
+    private val logger = Logger("TabReceivedEventsObserver")
 
     override fun onEvents(events: List<AccountEvent>) {
         events.asSequence()
