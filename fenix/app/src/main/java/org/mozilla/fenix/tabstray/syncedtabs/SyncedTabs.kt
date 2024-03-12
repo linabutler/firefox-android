@@ -51,6 +51,7 @@ private const val EXPANDED_BY_DEFAULT = true
  *
  * @param syncedTabs The tab UI items to be displayed.
  * @param onTabClick The lambda for handling clicks on synced tabs.
+ * @param onTabCloseClick ...
  */
 @SuppressWarnings("LongMethod")
 @OptIn(ExperimentalFoundationApi::class)
@@ -58,6 +59,7 @@ private const val EXPANDED_BY_DEFAULT = true
 fun SyncedTabsList(
     syncedTabs: List<SyncedTabsListItem>,
     onTabClick: (SyncTab) -> Unit,
+    onTabCloseClick: (String, SyncTab) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val expandedState =
@@ -86,12 +88,22 @@ fun SyncedTabsList(
                     if (sectionExpanded) {
                         if (syncedTabItem.tabs.isNotEmpty()) {
                             items(syncedTabItem.tabs) { syncedTab ->
-                                FaviconListItem(
-                                    label = syncedTab.displayTitle,
-                                    description = syncedTab.displayURL,
-                                    url = syncedTab.displayURL,
-                                    onClick = { onTabClick(syncedTab.tab) },
-                                )
+                                when (syncedTab.action) {
+                                    is SyncedTabsListItem.Tab.Action.Close -> FaviconListItem(
+                                        label = syncedTab.displayTitle,
+                                        description = syncedTab.displayURL,
+                                        url = syncedTab.displayURL,
+                                        onClick = { onTabClick(syncedTab.tab) },
+                                        iconPainter = painterResource(R.drawable.ic_close),
+                                        onIconClick = { onTabCloseClick(syncedTab.action.deviceId, syncedTab.tab) },
+                                    )
+                                    is SyncedTabsListItem.Tab.Action.None -> FaviconListItem(
+                                        label = syncedTab.displayTitle,
+                                        description = syncedTab.displayURL,
+                                        url = syncedTab.displayURL,
+                                        onClick = { onTabClick(syncedTab.tab) },
+                                    )
+                                }
                             }
                         } else {
                             item { SyncedTabsNoTabsItem() }
@@ -274,9 +286,9 @@ private fun SyncedTabsListPreview() {
         Box(Modifier.background(FirefoxTheme.colors.layer1)) {
             SyncedTabsList(
                 syncedTabs = getFakeSyncedTabList(),
-            ) {
-                println("Tab clicked")
-            }
+                onTabClick = { println("Tab clicked") },
+                onTabCloseClick = { _, _ -> println("Tab closed") },
+            )
         }
     }
 }
@@ -294,17 +306,25 @@ internal fun getFakeSyncedTabList(): List<SyncedTabsListItem> = listOf(
             generateFakeTab("", "www.google.com"),
         ),
     ),
-    SyncedTabsListItem.DeviceSection("Device 2", emptyList()),
+    SyncedTabsListItem.DeviceSection(
+        displayName = "Device 2",
+        tabs = listOf(
+            generateFakeTab("Firefox", "www.getfirefox.org", SyncedTabsListItem.Tab.Action.Close("device2222")),
+            generateFakeTab("Thunderbird", "www.getthunderbird.org", SyncedTabsListItem.Tab.Action.Close("device2222")),
+        ),
+    ),
+    SyncedTabsListItem.DeviceSection("Device 3", emptyList()),
     SyncedTabsListItem.Error("Please re-authenticate"),
 )
 
 /**
  * Helper function to create a [SyncedTabsListItem.Tab] for previewing.
  */
-private fun generateFakeTab(tabName: String, tabUrl: String): SyncedTabsListItem.Tab =
+private fun generateFakeTab(tabName: String, tabUrl: String, action: SyncedTabsListItem.Tab.Action = SyncedTabsListItem.Tab.Action.None): SyncedTabsListItem.Tab =
     SyncedTabsListItem.Tab(
         tabName.ifEmpty { tabUrl },
         tabUrl,
+        action,
         SyncTab(
             history = listOf(TabEntry(tabName, tabUrl, null)),
             active = 0,

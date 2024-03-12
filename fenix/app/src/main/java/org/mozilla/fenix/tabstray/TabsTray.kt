@@ -75,6 +75,7 @@ import mozilla.components.browser.storage.sync.Tab as SyncTab
  * @param onInactiveTabClick Invoked when the user clicks on an inactive tab.
  * @param onInactiveTabClose Invoked when the user clicks on an inactive tab's close button.
  * @param onSyncedTabClick Invoked when the user clicks on a synced tab.
+ * @param onSyncedTabClose ...
  * @param onSaveToCollectionClick Invoked when the user clicks on the save to collection button from
  * the multi select banner.
  * @param onShareSelectedTabsClick Invoked when the user clicks on the share button from the
@@ -117,6 +118,7 @@ fun TabsTray(
     onInactiveTabClick: (TabSessionState) -> Unit,
     onInactiveTabClose: (TabSessionState) -> Unit,
     onSyncedTabClick: (SyncTab) -> Unit,
+    onSyncedTabClose: (String, SyncTab) -> Unit,
     onSaveToCollectionClick: () -> Unit,
     onShareSelectedTabsClick: () -> Unit,
     onShareAllTabsClick: () -> Unit,
@@ -230,6 +232,7 @@ fun TabsTray(
                         SyncedTabsPage(
                             tabsTrayStore = tabsTrayStore,
                             onTabClick = onSyncedTabClick,
+                            onTabClose = onSyncedTabClose,
                         )
                     }
                 }
@@ -367,6 +370,7 @@ private fun PrivateTabsPage(
 private fun SyncedTabsPage(
     tabsTrayStore: TabsTrayStore,
     onTabClick: (SyncTab) -> Unit,
+    onTabClose: (String, SyncTab) -> Unit,
 ) {
     val syncedTabs = tabsTrayStore
         .observeAsComposableState { state -> state.syncedTabs }.value ?: emptyList()
@@ -374,6 +378,7 @@ private fun SyncedTabsPage(
     SyncedTabsList(
         syncedTabs = syncedTabs,
         onTabClick = onTabClick,
+        onTabCloseClick = onTabClose,
     )
 }
 
@@ -565,6 +570,7 @@ private fun TabsTrayPreviewRoot(
             onInactiveTabClick = {},
             onInactiveTabClose = inactiveTabsState::remove,
             onSyncedTabClick = {},
+            onSyncedTabClose = { _, _ -> },
             onSaveToCollectionClick = {},
             onShareSelectedTabsClick = {},
             onShareAllTabsClick = {},
@@ -607,10 +613,11 @@ private fun generateFakeSyncedTabsList(deviceCount: Int = 1): List<SyncedTabsLis
         )
     }
 
-private fun generateFakeSyncedTab(tabName: String, tabUrl: String): SyncedTabsListItem.Tab =
+private fun generateFakeSyncedTab(tabName: String, tabUrl: String, action: SyncedTabsListItem.Tab.Action = SyncedTabsListItem.Tab.Action.None): SyncedTabsListItem.Tab =
     SyncedTabsListItem.Tab(
         tabName.ifEmpty { tabUrl },
         tabUrl,
+        action,
         SyncTab(
             history = listOf(TabEntry(tabName, tabUrl, null)),
             active = 0,

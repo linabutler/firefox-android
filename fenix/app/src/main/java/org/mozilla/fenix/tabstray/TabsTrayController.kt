@@ -520,6 +520,11 @@ class DefaultTabsTrayController(
         )
     }
 
+    override fun handleSyncedTabClosed(deviceId: String, tab: Tab) {
+        dismissTray()
+        // ...
+    }
+
     override fun handleTabLongClick(tab: TabSessionState): Boolean {
         return if (tab.isNormalTab() && tabsTrayStore.state.mode.selectedTabs.isEmpty()) {
             Collections.longPress.record(NoExtras())

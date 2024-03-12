@@ -16,4 +16,7 @@ interface SyncedTabsController {
      * @param tab The synced [Tab] that was clicked.
      */
     fun handleSyncedTabClicked(tab: Tab)
+
+    /** ... */
+    fun handleSyncedTabClosed(deviceId: String, tab: Tab)
 }
