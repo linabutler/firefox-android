@@ -7,6 +7,9 @@ package org.mozilla.fenix.tabstray
 import androidx.annotation.VisibleForTesting
 import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mozilla.components.browser.state.action.DebugAction
 import mozilla.components.browser.state.action.LastAccessAction
@@ -21,6 +24,7 @@ import mozilla.components.browser.storage.sync.Tab
 import mozilla.components.concept.base.profiler.Profiler
 import mozilla.components.concept.engine.mediasession.MediaSession.PlaybackState
 import mozilla.components.concept.engine.prompt.ShareData
+import mozilla.components.feature.accounts.push.CloseRemoteTabsUseCase
 import mozilla.components.feature.downloads.ui.DownloadCancelDialogFragment
 import mozilla.components.feature.tabs.TabsUseCases
 import mozilla.components.lib.state.DelicateAction
@@ -185,6 +189,7 @@ interface TabsTrayController : SyncedTabsController, InactiveTabsController, Tab
  * @param navigationInteractor [NavigationInteractor] used to perform navigation actions with side effects.
  * @param tabsUseCases Use case wrapper for interacting with tabs.
  * @param bookmarksUseCase Use case wrapper for interacting with bookmarks.
+ * @param closeRemoteTabsUseCase ...
  * @param ioDispatcher [CoroutineContext] used to handle saving tabs as bookmarks.
  * @param collectionStorage Storage layer for interacting with collections.
  * @param selectTabPosition Lambda used to scroll the tabs tray to the desired position.
@@ -210,6 +215,7 @@ class DefaultTabsTrayController(
     private val navigationInteractor: NavigationInteractor,
     private val tabsUseCases: TabsUseCases,
     private val bookmarksUseCase: BookmarksUseCase,
+    private val closeRemoteTabsUseCase: CloseRemoteTabsUseCase,
     private val ioDispatcher: CoroutineContext,
     private val collectionStorage: TabCollectionStorage,
     private val selectTabPosition: (Int, Boolean) -> Unit,
@@ -520,9 +526,11 @@ class DefaultTabsTrayController(
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class) // GlobalScope usage
     override fun handleSyncedTabClosed(deviceId: String, tab: Tab) {
-        dismissTray()
-        // ...
+        GlobalScope.launch(Dispatchers.Main) {
+            closeRemoteTabsUseCase(deviceId, tab.active().url).await()
+        }
     }
 
     override fun handleTabLongClick(tab: TabSessionState): Boolean {
