@@ -196,8 +196,17 @@ class BackgroundServices(
             notificationManager.showReceivedTabs(context, device, tabs)
         }
 
-        CloseRemoteTabsFeature(accountManager) { _, urls ->
-            urls.forEach { context.components.core.store.dispatch(TabListAction.RemoveTabsByUrlAction(it)) }
+        CloseRemoteTabsFeature(accountManager) { _, remotelyClosedUrls ->
+            // The user might have the same URL open in multiple tabs on this device, and might want
+            // to remotely close some or all of those tabs. Synced tabs doesn't carry enough
+            // information to know which duplicates the user meant to close, so we use a heuristic:
+            // if a URL appears N times in the remotely closed URLs list, we close up to N instances
+            // of it.
+            val countsByUrl = remotelyClosedUrls.groupingBy { it }.eachCount()
+            val tabIdsToRemove = context.components.core.store.state.tabs.filter { countsByUrl.containsKey(it.content.url) }.groupBy { it.content.url }.mapValues { (url, tabs) ->
+                countsByUrl[url]?.let { count -> tabs.take(count) } ?: tabs
+            }.flatMap { (_, tabs) -> tabs.map { it.id } }
+            context.components.core.store.dispatch(TabListAction.RemoveTabsAction(tabIdsToRemove))
         }
 
         SyncedTabsIntegration(context, accountManager).launch()
